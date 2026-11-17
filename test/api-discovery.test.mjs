@@ -66,3 +66,46 @@ test('model discovery handles Pi RPC protocol', async () => {
     await new Promise(resolve => server.close(resolve));
   }
 });
+
+test('model discovery and streaming handles Codex JSON-RPC app-server protocol', async () => {
+  const handler = createAcpWebHandler({
+    createDaemon(engine) {
+      return new AcpDaemon(engine);
+    },
+  });
+  const server = createServer(handler);
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  try {
+    const fixturePath = fileURLToPath(new URL('./fixtures/codex-agent.mjs', import.meta.url));
+    const response = await fetch(`http://127.0.0.1:${server.address().port}/api/acp/discover`, {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
+        id: 'codex', name: 'Codex', command: process.execPath,
+        args: [fixturePath], env: {},
+      }),
+    });
+    assert.equal(response.status, 200);
+    const data = await response.json();
+    assert.equal(data.models[0].id, 'gpt-6.1-sol');
+    assert.equal(data.models[0].name, 'GPT-6.1-Sol');
+    assert.equal(data.models[1].id, 'gpt-6-astra');
+
+    // Test stream with mock codex agent
+    const daemon = new AcpDaemon({
+      id: 'codex', name: 'Codex', command: process.execPath,
+      args: [fixturePath], env: {},
+    });
+    let collectedText = '';
+    for await (const chunk of daemon.stream({
+      provider: 'codex',
+      model: 'gpt-6.1-sol',
+      messages: [{ role: 'user', content: 'Say PONG' }],
+    })) {
+      if (chunk.type === 'text-delta') collectedText += chunk.text;
+    }
+    assert.equal(collectedText, 'PONG');
+    daemon.dispose();
+  } finally {
+    await new Promise(resolve => server.close(resolve));
+  }
+});

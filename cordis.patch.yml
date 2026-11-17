@@ -68,6 +68,36 @@
                 description: 'Qwen4 Max via OpenCode ACP'
                 defaultEffort: 'high'
 
+          # Engine 3: Pi Agent (Local CLI)
+          pi:
+            name: 'Pi Agent (Local CLI)'
+            command: !!js process.platform === 'win32' ? 'pi.cmd' : 'pi'
+            args:
+              - '--mode'
+              - 'rpc'
+              - '--no-session'
+            models:
+              - id: 'deepseek-v4.1-flash'
+                name: 'DeepSeek v4.1 Flash (Pi)'
+                description: 'DeepSeek v4.1 Flash via Pi CLI'
+                defaultEffort: 'high'
+              - id: 'claude-haiku-5-5'
+                name: 'Claude Haiku 5.5 (Pi)'
+                description: 'Claude Haiku 5.5 via Pi CLI'
+                defaultEffort: 'high'
+              - id: 'qwen3.8-flash'
+                name: 'Qwen 3.8 Flash (Pi)'
+                description: 'Qwen 3.8 Flash via Pi CLI'
+                defaultEffort: 'high'
+              - id: 'kimi-k3.1-pro'
+                name: 'Kimi K3.1 Pro (Pi)'
+                description: 'Kimi K3.1 Pro via Pi CLI'
+                defaultEffort: 'high'
+              - id: 'gpt-5.6-luna'
+                name: 'GPT-5.6 Luna (Pi)'
+                description: 'GPT-5.6 Luna via Pi CLI'
+                defaultEffort: 'high'
+
           # Template Engine 3: Claude Code ACP (bila CLI claude dipasang)
           # claude:
           #   name: 'Anthropic Claude Code (ACP)'

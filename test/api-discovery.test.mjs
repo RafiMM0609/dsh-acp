@@ -65,6 +65,25 @@ test('model discovery handles Pi RPC protocol', async () => {
     const data = await response.json();
     assert.equal(data.models[0].id, 'pi-model-1');
     assert.equal(data.models[0].name, 'Pi Model 1');
+
+    // Test stream with mock Pi agent
+    const daemon = new AcpDaemon({
+      id: 'pi', name: 'Pi Agent', command: process.execPath,
+      args: [fileURLToPath(new URL('./fixtures/pi-agent.mjs', import.meta.url))], env: {},
+    });
+    let collectedText = '';
+    let collectedThought = '';
+    for await (const chunk of daemon.stream({
+      provider: 'pi',
+      model: 'pi-model-1',
+      messages: [{ role: 'user', content: 'Hello Pi' }],
+    })) {
+      if (chunk.type === 'text-delta') collectedText += chunk.text;
+      if (chunk.type === 'reasoning-delta') collectedThought += chunk.text;
+    }
+    assert.equal(collectedThought, 'Thinking...');
+    assert.equal(collectedText, 'Echo: Hello Pi');
+    daemon.dispose();
   } finally {
     await new Promise(resolve => server.close(resolve));
   }

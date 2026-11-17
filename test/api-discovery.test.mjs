@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
@@ -107,5 +110,25 @@ test('model discovery and streaming handles Codex JSON-RPC app-server protocol',
     daemon.dispose();
   } finally {
     await new Promise(resolve => server.close(resolve));
+  }
+});
+
+test('Pi discovery runs npm Windows shims from absolute paths containing spaces', { skip: process.platform !== 'win32' }, async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pi shim regression '));
+  const entry = path.join(dir, 'agent.mjs');
+  const shim = path.join(dir, 'pi.cmd');
+  fs.copyFileSync(fileURLToPath(new URL('./fixtures/pi-agent.mjs', import.meta.url)), entry);
+  fs.writeFileSync(shim, '@echo off\r\n"%_prog%" "%dp0%\\agent.mjs" %*\r\n');
+  try {
+    for (const command of [path.join(dir, 'pi'), shim]) {
+      const daemon = new AcpDaemon({ id: 'pi', command, args: ['--mode', 'rpc'], env: {} });
+      try {
+        assert.equal((await daemon.discoverModels('pi'))[0]?.id, 'pi-model-1');
+      } finally { daemon.dispose(); }
+    }
+  } finally {
+    fs.unlinkSync(entry);
+    fs.unlinkSync(shim);
+    fs.rmdirSync(dir);
   }
 });

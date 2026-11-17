@@ -1,0 +1,22 @@
+{
+  "name": "dsh-plugin-antigravity-acp",
+  "version": "0.1.0",
+  "description": "Google Antigravity ACP adapter for DeepSeek Harness",
+  "type": "module",
+  "main": "lib/index.mjs",
+  "exports": {
+    ".": "./lib/index.mjs",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": ["@deepseek-ai/dsh-client-ui-settings"]
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "license": "MIT"
+}

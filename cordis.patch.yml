@@ -1,0 +1,81 @@
+# Multi-Engine Agent Client Protocol (ACP) Bundle Patch for DeepSeek Harness (DSH).
+# Inserts the multi-engine ACP adapter into the DSH LLM runtime.
+# Each engine in `engines` registers as an independent LLM provider route in DSH.
+- insert:
+    - id: llm-antigravity-acp
+      name: 'dsh-plugin-antigravity-acp'
+      config:
+        engines:
+          # Engine 1: Google Antigravity ACP
+          antigravity:
+            name: 'Google Antigravity (ACP)'
+            command: 'C:\Users\5CG4292WTR\AppData\Local\agy\bin\agy.exe'
+            args:
+              - 'acp'
+              - '--stdio'
+              - '--dangerously-skip-permissions'
+            models:
+              - id: 'gemini-3.8-flash-high'
+                name: 'Gemini 3.8 Flash (High Thinking)'
+                description: 'Google Antigravity Gemini 3.8 Flash with high reasoning effort'
+                defaultEffort: 'high'
+              - id: 'gemini-3.8-flash-medium'
+                name: 'Gemini 3.8 Flash (Medium Thinking)'
+                description: 'Google Antigravity Gemini 3.8 Flash with medium reasoning effort'
+                defaultEffort: 'medium'
+              - id: 'gemini-3.8-flash-low'
+                name: 'Gemini 3.8 Flash (Low Thinking)'
+                description: 'Google Antigravity Gemini 3.8 Flash with low reasoning effort'
+                defaultEffort: 'low'
+              - id: 'claude-sonnet-4-6'
+                name: 'Claude Sonnet 4.6 (Thinking)'
+                description: 'Anthropic Claude Sonnet 4.6 via Google Antigravity ACP'
+                defaultEffort: 'high'
+              - id: 'claude-opus-4-6-thinking'
+                name: 'Claude Opus 4.6 (Thinking)'
+                description: 'Anthropic Claude Opus 4.6 via Google Antigravity ACP'
+                defaultEffort: 'high'
+              - id: 'gpt-oss-120b-medium'
+                name: 'GPT-OSS 120B (Medium)'
+                description: 'OpenAI GPT-OSS 120B via Google Antigravity ACP'
+                defaultEffort: 'medium'
+
+          # Engine 2: OpenCode ACP
+          opencode:
+            name: 'OpenCode (ACP)'
+            command: 'opencode'
+            args:
+              - 'acp'
+            models:
+              - id: 'opencode/deepseek-v4.1-flash'
+                name: 'DeepSeek V4.1 Flash'
+                description: 'DeepSeek V4.1 Flash via OpenCode ACP'
+                defaultEffort: 'high'
+              - id: 'opencode/claude-fable-5-2'
+                name: 'Claude Fable 5.2'
+                description: 'Claude Fable via OpenCode ACP'
+                defaultEffort: 'high'
+              - id: 'opencode/gpt-5.5'
+                name: 'GPT-5.5'
+                description: 'GPT-5.5 via OpenCode ACP'
+                defaultEffort: 'high'
+              - id: 'opencode/kimi-k3'
+                name: 'Kimi K3'
+                description: 'Kimi K3 via OpenCode ACP'
+                defaultEffort: 'high'
+              - id: 'opencode-go/qwen4-max'
+                name: 'Qwen4 Max'
+                description: 'Qwen4 Max via OpenCode ACP'
+                defaultEffort: 'high'
+
+          # Template Engine 3: Claude Code ACP (bila CLI claude dipasang)
+          # claude:
+          #   name: 'Anthropic Claude Code (ACP)'
+          #   command: 'npx'
+          #   args: ['@anthropic-ai/claude-code', '--acp']
+
+          # Template Engine 4: Codex ACP
+          # codex:
+          #   name: 'OpenAI Codex (ACP)'
+          #   command: 'C:\Users\5CG4292WTR\AppData\Local\Programs\OpenAI\Codex\bin\codex.exe'
+          #   args: ['app-server', '--stdio']

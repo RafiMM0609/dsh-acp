@@ -9,7 +9,7 @@
           # Engine 1: Google Antigravity ACP
           antigravity:
             name: 'Google Antigravity (ACP)'
-            command: '~/AppData/Local/agy/bin/agy.exe'
+            command: !!js process.platform === 'win32' ? '~/AppData/Local/agy/bin/agy.exe' : 'agy'
             args:
               - 'acp'
               - '--stdio'

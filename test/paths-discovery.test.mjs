@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { expandHome, compactHome } from '../lib/paths.mjs';
+import { AcpDaemon } from '../lib/index.mjs';
+
+test('home paths round-trip and leave unrelated paths and command names unchanged', () => {
+  const home = process.platform === 'win32' ? 'C:\\Users\\example' : '/home/example';
+  const expanded = expandHome('~/tools/agent', home);
+  assert.equal(compactHome(expanded, home), '~/tools/agent');
+  assert.equal(compactHome(home, home), '~');
+  assert.equal(expandHome('agy', home), 'agy');
+  assert.equal(expandHome('~another/agent', home), '~another/agent');
+  assert.equal(compactHome(`${home}-other/agent`, home), `${home}-other/agent`);
+});
+
+test('discovery reads grouped model options and legacy ACP model catalogs', async () => {
+  const daemon = new AcpDaemon({ id: 'test', name: 'Test agent' });
+  daemon.getOrCreateAcpSession = async () => ({
+    configOptions: [{ category: 'model', id: 'model-choice', options: [
+      { value: 'model-one', name: 'First model' },
+      { group: 'More models', options: [{ value: 'model-two', name: 'Second model' }] },
+    ] }], availableModels: [],
+  });
+  assert.deepEqual((await daemon.discoverModels('test')).map(model => model.id), ['model-one', 'model-two']);
+  daemon.getOrCreateAcpSession = async () => ({ configOptions: [], availableModels: [{ modelId: 'legacy', name: 'Legacy model' }] });
+  assert.equal((await daemon.discoverModels('test'))[0].id, 'legacy');
+});

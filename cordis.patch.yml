@@ -9,7 +9,7 @@
           # Engine 1: Google Antigravity ACP
           antigravity:
             name: 'Google Antigravity (ACP)'
-            command: 'C:\Users\5CG4292WTR\AppData\Local\agy\bin\agy.exe'
+            command: '~/AppData/Local/agy/bin/agy.exe'
             args:
               - 'acp'
               - '--stdio'

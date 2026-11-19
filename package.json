@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-antigravity-acp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "ACP, Pi RPC, and Codex app-server providers for DeepSeek Harness",
   "type": "module",
   "main": "lib/index.mjs",

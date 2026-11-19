@@ -39,6 +39,8 @@ test('native Settings editor loads, validates, saves, toggles and disposes 3-ste
   const fetch = async (url, options) => {
     const body = options.body && JSON.parse(options.body);
     calls.push({ url, body });
+    if (url.includes('/sessions?')) return { ok: true, json: async () => ({ ok: true, sessions: [{ sessionId: 'native-chat', protocol: 'acp', workspace: '/workspace', resumable: true, canCompact: true }] }) };
+    if (url.endsWith('/session-control')) return { ok: true, json: async () => ({ ok: true }) };
     if (url.endsWith('/discover')) return { ok: true, json: async () => ({ ok: true, models: [{ id: 'discovered', name: 'Discovered model' }] }) };
     if (url.endsWith('/save')) Object.assign(engine, body);
     if (url.endsWith('/toggle')) engine.disabled = body.disabled;
@@ -85,6 +87,12 @@ test('native Settings editor loads, validates, saves, toggles and disposes 3-ste
     assert.match(document.body.textContent, /Example ACP/);
     assert.equal(document.querySelector('iframe'), null);
 
+    await click('Sessions');
+    assert.match(document.body.textContent, /native resume available/);
+    await click('Compact native context');
+    assert.deepEqual(calls.find(c => c.url.endsWith('/session-control')).body, { provider: 'example', sessionId: 'native-chat', action: 'compact' });
+    await click('Close sessions');
+
     // 1. Edit existing provider -> Opens at Step 2 (Identity)
     await click('Edit');
     assert.ok(document.querySelector('.dsh-acp-wizard-dialog'));
@@ -115,8 +123,8 @@ test('native Settings editor loads, validates, saves, toggles and disposes 3-ste
     await click('Detect executable');
     await input('Binary path', '~/bin/custom-agent');
     await input('CONFIG_DIR path', '~/.custom-config');
-    await input('Auto-compact after', '400000');
-    await input('Compact idle threads', 'after-return');
+    assert.doesNotMatch(document.body.textContent, /Auto-compact after/);
+    assert.match(document.body.textContent, /Use Sessions to compact native context/);
 
     // Load models from agent via discovery
     await click('Load models from agent');
